@@ -58,35 +58,27 @@ Vue.component('do-tracking', {
         },
 
         // FUNGSI PENCARIAN VALID
-        handleSearch: function() {
-            this.hasSearched = true;
-            
-            // Jika input kosong, langsung gagalkan
-            if (!this.searchQuery || this.searchQuery.trim() === '') {
-                this.searchResult = null;
-                return;
-            }
+      handleSearch: function() {
+    this.hasSearched = true;
+    
+    if (!this.searchQuery || this.searchQuery.trim() === '') {
+        this.searchResult = null;
+        return;
+    }
 
-            const query = this.searchQuery.trim().toLowerCase();
-            
-            // Lakukan pencarian ketat ke dalam trackingList hasil fetch JSON
-            const found = this.trackingList.find(item => {
-                const itemDO = item.noDO ? item.noDO.trim().toLowerCase() : '';
-                const itemNIM = item.nim ? item.nim.trim().toLowerCase() : '';
-                
-                // Harus COCOK PERSIS atau mengandung kecocokan dari Nomor DO atau NIM
-                return itemDO === query || itemNIM === query || itemDO.includes(query) || itemNIM.includes(query);
-            });
-
-            // Jika ditemukan maka masukkan ke searchResult, jika tidak maka NULL (Gagal)
-            this.searchResult = found ? found : null;
-        },
+    const query = this.searchQuery.trim().toLowerCase();
+    
+    // UBAH LOGIKA: Hapus .includes(), gunakan === agar pencarian harus SAMA PERSIS
+    const found = this.trackingList.find(item => {
+        const itemDO = item.noDO ? item.noDO.trim().toLowerCase() : '';
+        const itemNIM = item.nim ? item.nim.trim().toLowerCase() : '';
         
-        handleReset: function() {
-            this.searchQuery = '';
-            this.searchResult = null;
-            this.hasSearched = false;
-        },
+        // Hanya akan TRUE jika input SAMA PERSIS dengan noDO atau NIM
+        return itemDO === query || itemNIM === query;
+    });
+
+    this.searchResult = found || null; 
+},
 
         // Menerjemahkan kode ekspedisi/paket dari list paket JSON
         getPaketName: function(kodePaket) {
