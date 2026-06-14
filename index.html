@@ -245,7 +245,7 @@
         </div>
     </template>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="js/data.js"></script> 
     <script src="js/services/api.js"></script>
     <script src="js/components/status-badge.js"></script>
@@ -253,51 +253,136 @@
     <script src="js/components/stock-table.js"></script>
     <script src="js/components/do-tracking.js"></script>
     
-   <script>
-new Vue({
-    el: '#app',
-    data() {
-        return {
-            tab: 'stok',
-            isAuthenticated: false,
-            loggedInUser: '',
-            loginGreeting: '',
-            loginForm: { email: '', password: '', remember: false },
-            trackingData: [],
-            paketData: []
-        };
-    },
-    created() {
-        this.calculateGreeting();
-        this.checkExistingSession();
-        this.loadBahanAjarData();
-    },
-    methods: {
-        loadBahanAjarData() {
-            // ... (logika loadBahanAjarData Anda tetap sama)
-            if (typeof dataTracking !== 'undefined') {
-                this.trackingData = Object.keys(dataTracking).map(key => ({
-                    noDO: key,
-                    ...dataTracking[key]
-                }));
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    tab: 'stok',
+                    isAuthenticated: false,
+                    loggedInUser: '',
+                    loginGreeting: '',
+                    loginForm: {
+                        email: '',
+                        password: '',
+                        remember: false
+                    },
+                    trackingData: [],
+                    paketData: []
+                };
+            },
+            created() {
+                this.calculateGreeting();
+                this.checkExistingSession();
+                this.loadBahanAjarData(); // Mengambil data dari data.js atau dataTracking
+            },
+            methods: {
+                loadBahanAjarData() {
+                    // 1. Validasi jika dataTracking dari data.js tersedia
+                    if (typeof dataTracking !== 'undefined') {
+                        this.trackingData = Object.keys(dataTracking).map(key => {
+                            return {
+                                noDO: key,
+                                nim: dataTracking[key].nim,
+                                nama: dataTracking[key].nama,
+                                status: dataTracking[key].status,
+                                ekspedisi: dataTracking[key].ekspedisi,
+                                tanggalKirim: dataTracking[key].tanggalKirim,
+                                paket: dataTracking[key].paket,
+                                total: dataTracking[key].total,
+                                perjalanan: dataTracking[key].perjalanan
+                            };
+                        });
+                    } else {
+                        console.warn("Variabel dataTracking tidak ditemukan di data.js");
+                    }
+
+                    // 2. Load data paket jika ada
+                    if (typeof dataBahanAjar !== 'undefined' && dataBahanAjar.paket) {
+                        this.paketData = dataBahanAjar.paket;
+                    } else {
+                        this.paketData = [
+                            { "kode": "PAKET-UT-001", "nama": "PAKET IPS Dasar" },
+                            { "kode": "PAKET-UT-002", "nama": "PAKET IPA Dasar" }
+                        ];
+                    }
+                },
+                calculateGreeting() {
+                    const currentHour = new Date().getHours();
+                    if (currentHour >= 5 && currentHour < 12) this.loginGreeting = 'Selamat Pagi, Mahasiswa UT';
+                    else if (currentHour >= 12 && currentHour < 15) this.loginGreeting = 'Selamat Siang, Mahasiswa UT';
+                    else if (currentHour >= 15 && currentHour < 18) this.loginGreeting = 'Selamat Sore, Mahasiswa UT';
+                    else this.loginGreeting = 'Selamat Malam, Mahasiswa UT';
+                },
+                checkExistingSession() {
+                    const savedEmail = localStorage.getItem('sitta_remembered_email');
+                    if (savedEmail) {
+                        this.loginForm.email = savedEmail;
+                        this.loginForm.remember = true;
+                    }
+                    const activeUser = localStorage.getItem('sitta_user_email');
+                    if (activeUser) {
+                        this.loggedInUser = activeUser;
+                        this.isAuthenticated = true;
+                    }
+                },
+                handleVueLogin() {
+                    const email = this.loginForm.email.trim();
+                    const password = this.loginForm.password;
+                    if (!email || !password) { 
+                        alert('Email dan Password wajib diisi!'); 
+                        return; 
+                    }
+                    
+                    // Memeriksa ketersediaan dataPengguna dari file JS external Anda
+                    if (typeof dataPengguna === 'undefined') { 
+                        alert('Gagal memuat data pengguna. Pastikan file js/data.js atau js/services/api.js memuat variabel dataPengguna.'); 
+                        return; 
+                    }
+                    
+                    const user = dataPengguna.find(u => u.email === email && u.password === password);
+                    if (user) {
+                        this.loggedInUser = email;
+                        this.isAuthenticated = true;
+                        localStorage.setItem('sitta_user_email', email);
+                        if (this.loginForm.remember) { 
+                            localStorage.setItem('sitta_remembered_email', email); 
+                        } else { 
+                            localStorage.removeItem('sitta_remembered_email'); 
+                        }
+                        alert('Login Berhasil! Masuk ke Dashboard SITTA.');
+                    } else {
+                        alert('Email atau password salah!');
+                        this.loginForm.password = '';
+                    }
+                },
+                resetLoginForm() {
+                    this.loginForm.email = '';
+                    this.loginForm.password = '';
+                    this.loginForm.remember = false;
+                    localStorage.removeItem('sitta_remembered_email');
+                },
+                handleVueLogout() {
+                    localStorage.removeItem('sitta_user_email');
+                    this.isAuthenticated = false;
+                    this.loggedInUser = '';
+                    this.tab = 'stok'; 
+                    this.calculateGreeting();
+                }
+            },
+            watch: {
+                tab: function(newTab, oldTab) {
+                    console.log(`Pengguna berpindah dari tab ${oldTab} ke tab ${newTab}`);
+                },
+                isAuthenticated: function(newVal) {
+                    if(newVal) {
+                        console.log("Sesi baru dimulai untuk user:", this.loggedInUser);
+                    } else {
+                        console.log("Sesi pengguna telah berakhir (Logout)");
+                    }
+                }
             }
-        },
-        calculateGreeting() { /* ... */ },
-        checkExistingSession() { /* ... */ },
-        handleVueLogin() { /* ... */ },
-        resetLoginForm() { /* ... */ },
-        handleVueLogout() { /* ... */ }
-    },
-    // POSISI WATCH YANG BENAR ADALAH DI SINI (SEJAJAR DENGAN METHODS)
-    watch: {
-        tab(newTab) {
-            console.log("Berpindah ke tab:", newTab);
-        },
-        isAuthenticated(newVal) {
-            if (!newVal) this.calculateGreeting();
-        }
-    }
-});
-</script>
+        });
+    </script>
 </body>
 </html>
