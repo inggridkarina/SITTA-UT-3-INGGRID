@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SITTA UT - Sistem Informasi Bahan Ajar</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div id="app" v-cloak>
+        
+        <div v-if="!isAuthenticated" class="main-container">
+            <div id="parentDIV">
+                <h1>SITTA UT</h1>
+                <b id="greeting" class="greeting-message">{{ loginGreeting }}</b>
+                <br><br>
+                <b>Selamat Datang!<br>Lacak bahan ajarmu di SITTA</b>
+                <p style="font-size: 0.85rem; color: var(--gold); margin-top: 10px;">
+                    Uji coba email: admin@ut.ac.id | Password: admin123
+                </p>
+            </div>
+
+            <div class="gradient-box">
+                <div id="myDIV">
+                    <div class="imgcontainer">
+                        <img src="Assets/logo-ut.png" alt="Logo Universitas Terbuka" class="logo-ut">
+                    </div>
+
+                    <form id="loginForm" @submit.prevent="handleVueLogin" novalidate>
+                        <div class="container">
+                            <label for="email"><b>Email</b></label>
+                            <input type="email" id="email" v-model="loginForm.email" placeholder="Masukkan Email" required>
+
+                            <label for="password"><b>Password</b></label>
+                            <input type="password" id="password" v-model="loginForm.password" placeholder="Masukkan Password" required>
+
+                            <button type="submit" id="loginBtn">Login</button>
+
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember" v-model="loginForm.remember">
+                                <label for="remember">Remember me</label>
+                            </div>
+                        </div>
+
+                        <div class="footer-form">
+                            <button type="button" class="cancelbtn" @click="resetLoginForm">Cancel</button>
+                            <span class="psw"><a href="#">Forgot password?</a></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div v-else class="main-container animate-fade">
+            
+            <header class="header-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="text-align: left;">
+                    <h2>SITTA UT Dashboard</h2>
+                    <p class="greeting-message">Selamat Datang, {{ loggedInUser }}</p>
+                    <p class="subtitle">Sistem Informasi Pengelolaan dan Distribusi Bahan Ajar</p>
+                </div>
+                <div>
+                    <button class="cancelbtn" @click="handleVueLogout" style="background: var(--red-low); color: white;">Logout</button>
+                </div>
+            </header>
+
+            <nav class="navbar">
+                <button :class="{ active: tab === 'stok' }" @click="tab = 'stok'">Stok Bahan Ajar</button>
+                <button :class="{ active: tab === 'tracking' }" @click="tab = 'tracking'">Tracking DO</button>
+                <button :class="{ active: tab === 'order' }" @click="tab = 'order'">Pemesanan</button>
+            </nav>
+
+            <section v-show="tab === 'stok'">
+                <ba-stock-table></ba-stock-table>
+            </section>
+
+            <section v-show="tab === 'tracking'">
+                <do-tracking :data="trackingData" :paket="paketData"></do-tracking>
+            </section>
+
+            <section v-show="tab === 'order'">
+                <div class="component-box">
+                    <h2>Halaman Pemesanan</h2>
+                    <p>Formulir Pemesanan Bahan Ajar Baru (Proses Integrasi Kamus Data SITTA).</p>
+                </div>
+            </section>
+        </div>
+
+        <app-modal ref="modal"></app-modal>
+    </div>
+
+    <template id="tpl-badge">
+        <span :class="badgeClass">
+            <slot></slot> {{ statusText }}
+        </span>
+    </template>
+
+    <template id="tpl-stock">
+        <div class="component-box">
+            <h2>Halaman Stok Bahan Ajar</h2>
+            
+            <div class="filter-panel">
+                <label>UT-Daerah:</label>
+                <select v-model="filters.upbjj" @change="handleUpbjjChange">
+                    <option value="">-- Semua UT Daerah --</option>
+                    <option v-for="item in upbjjList" :key="item" :value="item">{{ item }}</option>
+                </select>
+
+                <select v-model="filters.kategori">
+    <option value="">Semua Kategori</option>
+    <option v-for="kat in kategoriList" :key="kat" :value="kat">{{ kat }}</option>
+</select>
+
+                <label style="margin-left: 15px;">Urutkan:</label>
+                <select v-model="sortBy">
+                    <option value="judul">Judul</option>
+                    <option value="qty">Stok</option>
+                    <option value="harga">Harga</option>
+                </select>
+
+                <br><br>
+                <label>
+                    <input type="checkbox" v-model="filters.warningStock"> 
+                    Tampilkan Stok Menipis/Kosong (Qty &lt; Safety / Qty = 0)
+                </label>
+                <button @click="resetFilters" style="margin-left:15px;">Reset Filter</button>
+            </div>
+
+            <div class="form-mini">
+                <h3>{{ isEdit ? 'Edit' : 'Tambah' }} Bahan Ajar</h3>
+                <input type="text" v-model="form.kode" placeholder="Kode MK" :disabled="isEdit">
+                <input type="text" v-model="form.judul" placeholder="Judul Mata Kuliah" @keyup.enter="saveData">
+                <input type="text" v-model="form.kategori" placeholder="Kategori">
+                <input type="text" v-model="form.upbjj" placeholder="UT-Daerah">
+                <input type="number" v-model.number="form.harga" placeholder="Harga" @keyup.enter="saveData">
+                <input type="number" v-model.number="form.qty" placeholder="Qty" @keyup.enter="saveData">
+                <input type="number" v-model.number="form.safety" placeholder="Safety Stock" @keyup.enter="saveData">
+                <button @click="saveData">Simpan (Enter)</button>
+                <button v-if="isEdit" @click="cancelEdit">Batal</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="table-sitta">
+    <thead>
+        <tr>
+            <th>KODE/JUDUL</th>
+            <th>KATEGORI</th>
+            <th>UT-DAERAH</th>
+            <th>HARGA</th>
+            <th>STOK (SAFETY)</th>
+            <th>STATUS</th>
+            <th>AKSI</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="stok in filteredAndSortedStocks" :key="stok.kode">
+            <td>
+                <strong>{{ stok.kode }}</strong><br>
+                <small>{{ stok.judul }}</small><br>
+                <i v-if="stok.catatanHTML" v-html="stok.catatanHTML" style="font-size: 0.85em; color: #aaa;"></i>
+            </td>
+            
+            <td>{{ stok.kategori }}</td>
+            
+            <td>{{ stok.upbjj }}</td>
+            
+            <td>{{ stok.harga | formatRupiah }}</td>
+            
+            <td>{{ stok.qty }} buah ({{ stok.safety }} buah)</td>
+            
+            <td>
+                <span :class="stok.qty <= stok.safety ? 'badge-warning' : 'badge-safe'">
+                    {{ stok.qty <= stok.safety ? 'Menipis' : 'Aman' }}
+                </span>
+            </td>
+            
+            <td>
+                <button @click="editData(stok)">Edit</button>
+                <button @click="confirmDelete(stok.kode)">Hapus</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-tracking">
+        <div class="component-box animate-fade">
+            <h2>Tracking Delivery Order (DO)</h2>
+
+            <div class="search-panel">
+                <input 
+                    type="text" 
+                    v-model="searchQuery" 
+                    placeholder="Masukkan Nomor DO atau NIM lalu tekan Enter..." 
+                    @keyup.enter="handleSearch"
+                    @keyup.esc="handleReset"
+                />
+                <button @click="handleSearch">Cari</button>
+                <button @click="handleReset" style="background: rgba(255, 255, 255, 0.15); color: #ffffff;">Reset (Esc)</button>
+            </div>
+
+            <div v-if="searchResult" class="search-result animate-fade" style="margin-top: 1.5rem;">
+                <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 1rem; margin-bottom: 1rem;">
+                    <h3 style="color: var(--gold); margin-bottom: 0.5rem;">📦 Detail Pengiriman: {{ searchResult.noDO }}</h3>
+                    <p><strong>NIM Mahasiswa:</strong> {{ searchResult.nim }}</p>
+                    <p><strong>Nama Penerima:</strong> {{ searchResult.nama }}</p>
+                    <p><strong>Layanan Ekspedisi:</strong> {{ searchResult.ekspedisi }}</p>
+                    <p><strong>Paket Bahan Ajar:</strong> {{ getPaketName(searchResult.paket) }}</p>
+                    <p><strong>Total Harga Paket:</strong> Rp {{ searchResult.total.toLocaleString('id-ID') }}</p>
+                    <p><strong>Tanggal Kirim:</strong> {{ searchResult.tanggalKirim }}</p>
+                    <p style="margin-top: 0.5rem;">
+                        <strong>Status Distribusi:</strong> 
+                        <span class="badge-warning" style="margin-left: 0.5rem;">{{ searchResult.status }}</span>
+                    </p>
+                </div>
+
+                <h4 style="color: #ffffff; margin-bottom: 0.75rem;">Logs Progress Perjalanan:</h4>
+                <ul style="list-style: none; padding-left: 1rem;">
+                    <li v-for="(log, index) in searchResult.perjalanan" :key="index" style="margin-bottom: 1rem; position: relative;">
+                        <small style="color: var(--gold); display: block; font-weight: 600;">{{ log.waktu }}</small>
+                        <span style="color: var(--text-main); font-size: 0.95rem;">{{ log.keterangan }}</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div v-else-if="hasSearched" class="search-result animate-fade" style="text-align: center; color: var(--red-low); margin-top: 1.5rem; font-weight: 600;">
+                Data pengiriman dengan nomor DO atau NIM "{{ searchQuery }}" tidak ditemukan.
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-modal">
+        <div v-if="visible" class="modal-overlay">
+            <div class="modal-content">
+                <h3>{{ title }}</h3>
+                <p>{{ message }}</p>
+                <div class="modal-actions">
+                    <button @click="confirm">Ya, Hapus</button>
+                    <button @click="close">Batal</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="js/data.js"></script> 
+    <script src="js/services/api.js"></script>
+    <script src="js/components/status-badge.js"></script>
+    <script src="js/components/app-modal.js"></script>
+    <script src="js/components/stock-table.js"></script>
+    <script src="js/components/do-tracking.js"></script>
+    
+    <script>
+       new Vue({
+    el: '#app',
+    data() {
+        return {
+            tab: 'stok',
+            isAuthenticated: false,
+            loggedInUser: '',
+            loginGreeting: '',
+            loginForm: {
+                email: '',
+                password: '',
+                remember: false
+            },
+            // Tempat menampung data setelah dikonversi ke array
+            trackingData: [],
+            paketData: []
+        };
+    },
+    created() {
+        this.calculateGreeting();
+        this.checkExistingSession();
+        this.loadBahanAjarData(); // Mengambil data dari data.js
+    },
+    methods: {
+        loadBahanAjarData() {
+            // 1. Validasi jika dataTracking dari data.js tersedia
+            if (typeof dataTracking !== 'undefined') {
+                // Mengubah Object Literal menjadi Array agar aman dibaca oleh .find()
+                this.trackingData = Object.keys(dataTracking).map(key => {
+                    return {
+                        noDO: key,                // Memasukkan key ("DO2025-0001") ke dalam properti noDO
+                        nim: dataTracking[key].nim,
+                        nama: dataTracking[key].nama,
+                        status: dataTracking[key].status,
+                        ekspedisi: dataTracking[key].ekspedisi,
+                        tanggalKirim: dataTracking[key].tanggalKirim,
+                        paket: dataTracking[key].paket,
+                        total: dataTracking[key].total,
+                        perjalanan: dataTracking[key].perjalanan
+                    };
+                });
+            } else {
+                console.warn("Variabel dataTracking tidak ditemukan di data.js");
+            }
+
+            // 2. Load data paket jika ada (atau buat array kosong jika diintegrasikan nanti)
+            if (typeof dataBahanAjar !== 'undefined' && dataBahanAjar.paket) {
+                this.paketData = dataBahanAjar.paket;
+            } else {
+                // Fallback dummy jika dataBahanAjar.json belum termuat penuh
+                this.paketData = [
+                    { "kode": "PAKET-UT-001", "nama": "PAKET IPS Dasar" },
+                    { "kode": "PAKET-UT-002", "nama": "PAKET IPA Dasar" }
+                ];
+            }
+        },
+        // ... method calculateGreeting, handleVueLogin, dll tetap sama ...
+        calculateGreeting() {
+            const currentHour = new Date().getHours();
+            if (currentHour >= 5 && currentHour < 12) this.loginGreeting = 'Selamat Pagi, Mahasiswa UT';
+            else if (currentHour >= 12 && currentHour < 15) this.loginGreeting = 'Selamat Siang, Mahasiswa UT';
+            else if (currentHour >= 15 && currentHour < 18) this.loginGreeting = 'Selamat Sore, Mahasiswa UT';
+            else this.loginGreeting = 'Selamat Malam, Mahasiswa UT';
+        },
+        checkExistingSession() {
+            const savedEmail = localStorage.getItem('sitta_remembered_email');
+            if (savedEmail) {
+                this.loginForm.email = savedEmail;
+                this.loginForm.remember = true;
+            }
+            const activeUser = localStorage.getItem('sitta_user_email');
+            if (activeUser) {
+                this.loggedInUser = activeUser;
+                this.isAuthenticated = true;
+            }
+        },
+        handleVueLogin() {
+            const email = this.loginForm.email.trim();
+            const password = this.loginForm.password;
+            if (!email || !password) { alert('Email dan Password wajib diisi!'); return; }
+            if (typeof dataPengguna === 'undefined') { alert('Gagal memuat data pengguna.'); return; }
+            
+            const user = dataPengguna.find(u => u.email === email && u.password === password);
+            if (user) {
+                this.loggedInUser = email;
+                this.isAuthenticated = true;
+                localStorage.setItem('sitta_user_email', email);
+                if (this.loginForm.remember) { localStorage.setItem('sitta_remembered_email', email); } 
+                else { localStorage.removeItem('sitta_remembered_email'); }
+                alert('Login Berhasil! Masuk ke Dashboard SITTA.');
+            } else {
+                alert('Email atau password salah!');
+                this.loginForm.password = '';
+            }
+        },
+        resetLoginForm() {
+            this.loginForm.email = '';
+            this.loginForm.password = '';
+            this.loginForm.remember = false;
+            localStorage.removeItem('sitta_remembered_email');
+        },
+        handleVueLogout() {
+            localStorage.removeItem('sitta_user_email');
+            this.isAuthenticated = false;
+            this.loggedInUser = '';
+            this.tab = 'stok'; 
+            this.calculateGreeting();
+        },
+        watch: {
+    // Watcher 1: Memantau perubahan perpindahan Tab
+    tab: function(newTab, oldTab) {
+        console.log(`Pengguna berpindah dari tab ${oldTab} ke tab ${newTab}`);
+        // Aksi tambahan, misal otomatis mereset pencarian tracking saat pindah tab
+    },
+    
+    // Watcher 2: Memantau jika status otentikasi berubah
+    isAuthenticated: function(newVal) {
+        if(newVal) {
+            console.log("Sesi baru dimulai untuk user:", this.loggedInUser);
+        } else {
+            console.log("Sesi pengguna telah berakhir (Logout)");
+        }
+    }
+    }
+}});
+    </script>
+</body>
+</html>

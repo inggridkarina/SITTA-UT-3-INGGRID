@@ -1,0 +1,565 @@
+/* ==========================================================================
+   1. ROOT VARIABLES (Modernized UT Brand Colors & Theme Ecosystem)
+   ========================================================================== */
+:root {
+    /* Brand Color Blueprint */
+    --blue-ut: #0A4595;
+    --blue-mid: rgba(10, 68, 149, 0.84);
+    --blue-dark: #062c63;
+    --blue-deep: #0f172a;
+    --gold: #FFD700;
+    --white-bg: #FFF9F9;
+    
+    /* Neutral & Typography Scale */
+    --text-main: #ffffff;
+    --text-muted: #cbd5e1;
+    --text-dark: #1e293b;
+    
+    /* UI Components & State Feedback */
+    --green-success: #2ecc71;
+    --badge-warning: #ffc107;
+    --red-low: #ff6b6b;
+    
+    /* Glassmorphic Properties */
+    --glass: rgba(255, 255, 255, 0.08);
+    --glass-heavy: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.25);
+    --shadow-hard: 0 25px 50px rgba(0, 0, 0, 0.4);
+    --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    
+    /* Design System Tokens */
+    --radius-lg: 1.5rem;
+    --radius-md: 0.75rem;
+    --radius-sm: 0.5rem;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   2. RESET & LAYOUT GLOBAL CONTROLLER
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #10356c 0%, var(--blue-ut) 50%, var(--blue-dark) 100%);
+    background-attachment: fixed;
+    padding: 1.5rem 1rem;
+    color: var(--text-main);
+    line-height: 1.5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+[v-cloak] {
+    display: none !important;
+}
+
+/* Core Wrapper System Vue Instance Container */
+#app {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.main-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+/* ==========================================================================
+   3. NAVIGATION TAB SYSTEM (State Interface Controller)
+   ========================================================================== */
+.navbar {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: 0.75rem;
+    box-shadow: var(--shadow-soft);
+    width: 100%;
+}
+
+.navbar button {
+    background: transparent;
+    color: var(--text-main);
+    border: 1px solid transparent;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.navbar button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--gold);
+}
+
+.navbar button.active {
+    background: var(--gold);
+    color: var(--blue-dark);
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+/* ==========================================================================
+   4. GLASSMORPHIC CONTAINER COMPONENT (PERBAIKAN UTAMA DI SINI)
+   ========================================================================== */
+.glass-card, .gradient-box, .glass-box {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.glass-card:hover, .gradient-box:hover, .glass-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   5. LOGIN FORM STYLING SPECIFIC
+   ========================================================================== */
+#parentDIV {
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+#parentDIV h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    color: #ffffff;
+    text-shadow: var(--text-shadow);
+    font-weight: 800;
+}
+
+.imgcontainer {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.logo-ut {
+    max-width: 110px;
+    width: 100%;
+    height: auto;
+    filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+    transition: var(--transition-smooth);
+}
+
+.logo-ut:hover {
+    transform: translateY(-4px) scale(1.05);
+}
+
+#loginForm .container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+}
+
+#loginForm label {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+#loginForm input[type="email"],
+#loginForm input[type="password"] {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    color: var(--text-dark);
+    outline: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+#loginForm input:focus {
+    border-color: var(--gold);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+}
+
+#loginForm button[type="submit"] {
+    background: var(--blue-ut);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(10, 65, 149, 0.3);
+}
+
+#loginForm button[type="submit"]:hover {
+    background: #083674;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(10, 65, 149, 0.4);
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+}
+
+.remember-me input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.footer-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    gap: 0.8rem;
+}
+
+.cancelbtn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.6rem 1.4rem;
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.cancelbtn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.psw a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1.5px dashed var(--gold);
+}
+
+.psw a:hover {
+    border-bottom-style: solid;
+}
+
+/* ==========================================================================
+   6. HEADER & GREETING (DASHBOARD)
+   ========================================================================== */
+.header-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.header-card h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: var(--text-shadow);
+}
+
+.greeting-message {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-top: 0.4rem;
+}
+
+.subtitle {
+    font-size: 1rem;
+    opacity: 0.85;
+    margin-top: 0.2rem;
+}
+
+/* ==========================================================================
+   7. HIGH-READABILITY DATA TABLES (SITTA Engine Specification)
+   ========================================================================== */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-hard);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table-sitta {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-sitta th, .table-sitta td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #1a3a5f; /* Warna garis yang senada dengan background */
+}
+
+/* Memastikan kolom aksi tidak terlalu lebar */
+.table-sitta td:last-child {
+    white-space: nowrap;
+}
+
+.badge-warning { background: #f39c12; color: #fff; padding: 4px 8px; border-radius: 4px; }
+.badge-safe { background: #27ae60; color: #fff; padding: 4px 8px; border-radius: 4px; }
+
+.table-sitta th {
+    background: rgba(15, 23, 42, 0.75);
+    padding: 1.1rem 1.25rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+.table-sitta td {
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.table-sitta tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.table-sitta button {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-right: 0.35rem;
+    border: none;
+    transition: all 0.2s;
+}
+
+.table-sitta button:first-of-type {
+    background: var(--gold);
+    color: var(--blue-dark);
+}
+
+.table-sitta button:last-of-type {
+    background: var(--red-low);
+    color: white;
+}
+
+/* ==========================================================================
+   8. CONTROL PANEL & MINI INPUT FORMS (UX Filter System)
+   ========================================================================== */
+.filter-panel, .search-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(15, 23, 42, 0.25);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 1.5rem;
+}
+
+.filter-panel label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.filter-panel select, 
+.form-mini select,
+.form-mini input,
+.search-panel input {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-dark);
+    border: 1.5px solid transparent;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    outline: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.filter-panel select:focus, 
+.form-mini input:focus, 
+.search-panel input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.25);
+    background: #ffffff;
+}
+
+.form-mini {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-mini h3 {
+    font-size: 1.15rem;
+    color: var(--gold);
+    font-weight: 700;
+}
+
+.form-mini button, .filter-panel button {
+    background: var(--blue-ut);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.65rem 1.25rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+/* ==========================================================================
+   9. INTERACTIVE UX COMPONENTS & FEEDBACK BADGES
+   ========================================================================== */
+.badge-success, .badge-warning, .badge-danger {
+    font-weight: 700;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.badge-success { background-color: var(--green-success); color: #ffffff; }
+.badge-warning { background-color: var(--badge-warning); color: #1e293b; }
+.badge-danger  { background-color: var(--red-low); color: #ffffff; }
+
+.tooltip-container { position: relative; cursor: help; }
+.tooltip-text {
+    display: none;
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--blue-deep);
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    z-index: 99;
+    width: 220px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: var(--shadow-hard);
+}
+.tooltip-container:hover .tooltip-text { display: block; animation: fadeIn 0.2s ease-out; }
+
+/* ==========================================================================
+   10. TRACKING STEPPER SYSTEM & SEARCH VIEWS
+   ========================================================================== */
+.search-panel input[type="text"] { flex: 1; }
+.search-panel button {
+    background: var(--gold);
+    color: var(--blue-dark);
+    font-weight: 700;
+    padding: 0.65rem 2rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.search-result {
+    background: rgba(15, 23, 42, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+}
+
+.search-result ul { position: relative; padding-left: 1.5rem; margin-top: 1rem; list-style: none; }
+.search-result ul::before {
+    content: ''; position: absolute; left: 4px; top: 5px; bottom: 5px; width: 2px; background: rgba(255, 255, 255, 0.15);
+}
+.search-result ul li { position: relative; padding-bottom: 1rem; font-size: 0.95rem; }
+.search-result ul li::before {
+    content: ''; position: absolute; left: -1.45rem; top: 6px; width: 10px; height: 10px; background: var(--green-success); border-radius: 50%; box-shadow: 0 0 8px var(--green-success);
+}
+
+.add-progress { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.add-progress input { flex: 1; }
+.paket-detail-box {
+    background: rgba(10, 69, 149, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    margin: 0.75rem 0;
+    font-size: 0.9rem;
+    color: var(--gold);
+}
+
+/* ==========================================================================
+   11. GLOBAL MODAL DIALOG COMPONENT (System Overlays)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px);
+    display: flex; justify-content: center; align-items: center; z-index: 9999;
+}
+.modal-content {
+    background: #ffffff; color: var(--text-dark); padding: 2.5rem;
+    border-radius: var(--radius-lg); text-align: center; max-width: 440px; width: 90%;
+}
+.modal-actions { margin-top: 1.5rem; }
+.modal-actions button { padding: 0.75rem 1.5rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; border: none; }
+.modal-actions button:first-of-type { background: var(--red-low); color: white; }
+.modal-actions button:last-of-type { background: #e2e8f0; color: #475569; margin-left: 0.75rem; }
+
+/* ==========================================================================
+   12. RESPONSIVE ENGINE (Fluid Mobile Design Media Queries)
+   ========================================================================== */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.animate-fade { animation: fadeIn 0.4s ease-in-out; }
+
+@media (max-width: 768px) {
+    body { padding: 1rem 0.5rem; }
+    .component-box, .glass-card, .gradient-box { padding: 1.5rem 1rem; }
+    .navbar { flex-direction: column; gap: 0.5rem; }
+    .navbar button { width: 100%; text-align: center; }
+    .filter-panel, .search-panel { flex-direction: column; align-items: stretch; }
+    .filter-panel select, .search-panel input, .search-panel button { width: 100%; }
+    .table-sitta th, .table-sitta td { padding: 0.75rem 0.5rem; font-size: 0.8rem; }
+    .add-progress { flex-direction: column; }
+    .footer-form { flex-direction: column; gap: 1rem; }
+    .cancelbtn { width: 100%; }
+}
